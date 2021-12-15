@@ -2,12 +2,16 @@ import { atom, selector } from "recoil";
 
 export interface IToDo {
   text: string;
-  category: categories;
+  category: string;
+  id: number;
+}
+export interface ICategoryList {
+  label: string;
   id: number;
 }
 export const todoState = atom<IToDo[]>({
   key: "toDo",
-  default: [],
+  default: JSON.parse(localStorage.getItem("todos") || "[]"),
 });
 export const toDoSelector = selector({
   key: "toDoSelector",
@@ -17,8 +21,13 @@ export const toDoSelector = selector({
     return toDos.filter((todo) => todo.category === category);
   },
 });
-export const categoryState = atom<categories>({
+export const categoryState = atom({
   key: "category",
-  default: "TO_DO",
+  default: "Default",
 });
-type categories = "DONE" | "DOING" | "TO_DO";
+export const CategoryList = atom<ICategoryList[]>({
+  key: "categoryList",
+  default: JSON.parse(
+    localStorage.getItem("categories") || '[{"label":"Default", "id":0}]'
+  ),
+});

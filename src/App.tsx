@@ -1,5 +1,5 @@
-import React from "react";
 import { createGlobalStyle } from "styled-components";
+import AddCategory from "./components/AddCategory";
 import ToDoList from "./components/ToDoList";
 
 const GlobalStyle = createGlobalStyle`
@@ -71,6 +71,7 @@ function App() {
     <>
       <GlobalStyle />
       <ToDoList />
+      <AddCategory />
     </>
   );
 }
