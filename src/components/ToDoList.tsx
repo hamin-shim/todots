@@ -1,83 +1,29 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import {
-  atom,
-  useRecoilState,
-  useRecoilValue,
-  useSetRecoilState,
-} from "recoil";
-interface IForm {
-  toDo: string;
-}
-const todoState = atom<IToDo[]>({
-  key: "toDo",
-  default: [],
-});
-interface IToDo {
-  text: string;
-  category: "DONE" | "DOING" | "TO_DO";
-  id: number;
-}
+import React from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { categoryState, toDoSelector } from "../atoms";
+import CreateToDo from "./CreateToDo";
+import ToDo from "./ToDo";
+
 function ToDoList() {
-  // const value = useRecoilValue(todoState);
-  // const modFn = useSetRecoilState(todoState);
-  const [toDos, setToDos] = useRecoilState(todoState);
-  const { register, handleSubmit, setValue } = useForm<IForm>({});
-  const onValid = ({ toDo }: IForm) => {
-    console.log("add to do", toDo);
-    setToDos((oldToDos) => [
-      { text: toDo, category: "TO_DO", id: Date.now() },
-      ...oldToDos,
-    ]);
-    setValue("toDo", "");
+  const toDo = useRecoilValue(toDoSelector);
+  const [category, setCategory] = useRecoilState(categoryState);
+  const onInput = (event: React.FormEvent<HTMLSelectElement>) => {
+    setCategory(event.currentTarget.value as any);
   };
   return (
     <div>
       <h1>To Dos</h1>
       <hr />
-      <form onSubmit={handleSubmit(onValid)}>
-        <input
-          {...register("toDo", {
-            required: "Please write a to do",
-          })}
-          placeholder="Write a to do"
-        />
-        <button>add</button>
-      </form>
-      <ul>
-        {toDos.map((toDo) => (
-          <li key={toDo.id}>{toDo.text}</li>
-        ))}
-      </ul>
+      <select value={category} onInput={onInput}>
+        <option value="TO_DO">To Do</option>
+        <option value="DOING">Doing</option>
+        <option value="DONE">Done</option>
+      </select>
+      <CreateToDo />
+      {toDo.map((one) => (
+        <ToDo key={one.id} {...one} />
+      ))}
     </div>
   );
 }
 export default ToDoList;
-
-// const [toDo, setToDo] = useState("");
-// const [todoError, setTodoError] = useState("");
-// const onChange = (event: React.FormEvent<HTMLInputElement>) => {
-//   const {
-//     currentTarget: { value },
-//   } = event;
-//   setToDo(value);
-//   setTodoError("");
-// };
-// const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-//   event.preventDefault();
-//   console.log(toDo);
-//   if (toDo.length < 10) {
-//     return setTodoError("To do Should be longer");
-//   } else {
-//     console.log("submit");
-//   }
-// };
-// return (
-//   <div>
-//     <form onSubmit={onSubmit}>
-//       <input onChange={onChange} value={toDo} placeholder="write a todo" />
-//       <button>Add</button>
-//       {todoError !== "" ? todoError : null}
-//     </form>
-//   </div>
-// );
