@@ -1,22 +1,40 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import {
+  atom,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from "recoil";
 interface IForm {
   toDo: string;
 }
+const todoState = atom<IToDo[]>({
+  key: "toDo",
+  default: [],
+});
+interface IToDo {
+  text: string;
+  category: "DONE" | "DOING" | "TO_DO";
+  id: number;
+}
 function ToDoList() {
-  const {
-    register,
-    watch,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm<IForm>({});
-  const onValid = (data: IForm) => {
-    console.log("add to do", data.toDo);
+  // const value = useRecoilValue(todoState);
+  // const modFn = useSetRecoilState(todoState);
+  const [toDos, setToDos] = useRecoilState(todoState);
+  const { register, handleSubmit, setValue } = useForm<IForm>({});
+  const onValid = ({ toDo }: IForm) => {
+    console.log("add to do", toDo);
+    setToDos((oldToDos) => [
+      { text: toDo, category: "TO_DO", id: Date.now() },
+      ...oldToDos,
+    ]);
     setValue("toDo", "");
   };
   return (
     <div>
+      <h1>To Dos</h1>
+      <hr />
       <form onSubmit={handleSubmit(onValid)}>
         <input
           {...register("toDo", {
@@ -24,9 +42,13 @@ function ToDoList() {
           })}
           placeholder="Write a to do"
         />
-        <span>{errors?.toDo?.message}</span>
         <button>add</button>
       </form>
+      <ul>
+        {toDos.map((toDo) => (
+          <li key={toDo.id}>{toDo.text}</li>
+        ))}
+      </ul>
     </div>
   );
 }
